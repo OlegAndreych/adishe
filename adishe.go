@@ -17,9 +17,10 @@ import (
 
 	"path"
 
-	"github.com/op/go-logging"
 	"flag"
 	"strconv"
+
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("adishe")
@@ -43,7 +44,7 @@ func main() {
 
 	routerMap := <-routerRes
 	routerSet := mapset.NewThreadUnsafeSet()
-	for key, _ := range routerMap {
+	for key := range routerMap {
 		routerSet.Add(key)
 	}
 
@@ -68,7 +69,7 @@ func main() {
 		filenameChan := make(chan string, 1)
 		go createScriptFile(filenameChan, setToAdd)
 		sshSessionChan := make(chan *ssh.Session, 1)
-		go createSshSession(sshSessionChan)
+		go createSSHSession(sshSessionChan)
 		scriptFilename := <-filenameChan
 		session := <-sshSessionChan
 		defer session.Close()
@@ -208,9 +209,9 @@ func createScriptFile(tempFilenameChan chan string, setToAdd mapset.Set) {
 }
 
 // Establishes SSH session for script uploading.
-func createSshSession(sshSessionChan chan *ssh.Session) {
+func createSSHSession(sshSessionChan chan *ssh.Session) {
 	log.Info("Creating ssh session.")
-	sshClient, err := ssh.Dial("tcp", *address + ":" + strconv.Itoa(*sshPort), &ssh.ClientConfig{
+	sshClient, err := ssh.Dial("tcp", *address+":"+strconv.Itoa(*sshPort), &ssh.ClientConfig{
 		User: *login,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(*password),
